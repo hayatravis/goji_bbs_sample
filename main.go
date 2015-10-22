@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"database/sql"
-//	"encoding/json"
-	"github.com/elgs/gosqljson"
+// "encoding/json"
 
-	"github.com/zenazn/goji"
-	"github.com/zenazn/goji/web"
+	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 
+	"github.com/elgs/gosqljson"
+	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web"
+
 //	"github.com/goji/param"
+	"reflect"
 )
 
 
@@ -54,7 +56,7 @@ func Users(c web.C, w http.ResponseWriter, r *http.Request) {
 	theCase := "lower"
 	data, _ := gosqljson.QueryDbToMapJson(db, theCase, sql, offset, limit)
 
-	/* view */
+	/* -- View -- */
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	io.WriteString(w, data)
 }
@@ -76,17 +78,38 @@ func CommentList(c web.C, w http.ResponseWriter, r *http.Request) {
 	theCase := "lower"
 	data, _ := gosqljson.QueryDbToMapJson(db, theCase, sql, offset, limit)
 
-	/* view */
+	/* -- View -- */
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	io.WriteString(w, data)
 }
 
 func Comment(w http.ResponseWriter, r *http.Request) {
+	/* -- DB -- */
+	db, err := sql.Open("mysql", "root:@/test_bbs")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	/* -- Params -- */
 	r.ParseForm()
-	fmt.Println(r.Form)
+	post := r.Form
+	name := string(post["name"])
+	fmt.Println(reflect.TypeOf(name))
+	fmt.Println(post["comment"])
+	fmt.Println(post["tags"])
+	fmt.Println(post["area"])
+
+
+	/* -- SQL -- */
+	sql := "INSERT INTO comment (name, comment, tags, area, create, modiefied)  VALUES (?, ?, ?, ?, NOW(), NOW());"
+	result, err := db.Exec(sql, post["name"], post["comment"], post["tags"], post["area"])
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	io.WriteString(w, "aaaaaaaaaaaaaa")
+	fmt.Println(result)
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
