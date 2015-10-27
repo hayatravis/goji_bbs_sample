@@ -1,17 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"net/http"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	"fmt"
 	"github.com/elgs/gosqljson"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"io"
+	"net/http"
 	"strings"
 )
-
 
 func main() {
 	/* -- Router -- */
@@ -37,7 +36,6 @@ func main() {
 func Root(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello Golang Goji.")
 }
-
 
 /**
  * user list
@@ -108,7 +106,6 @@ func Comment(w http.ResponseWriter, r *http.Request) {
 	comment = strings.Join(post["comment"], "")
 	tags = strings.Join(post["tags"], "")
 	area = strings.Join(post["area"], "")
-
 
 	/* -- SQL -- */
 	sql := "INSERT INTO comment (name, comment, tags, area, created, modified)  VALUES (?, ?, ?, ?, NOW(), NOW());"
